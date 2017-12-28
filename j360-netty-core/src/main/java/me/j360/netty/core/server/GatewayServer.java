@@ -15,8 +15,8 @@ public class GatewayServer extends NettyTCPServer {
     private ServerChannelHandler channelHandler;
     private ConnectionManager connectionManager;
 
-    public GatewayServer() {
-        super(8888);
+    public GatewayServer(int port) {
+        super(port);
         //this.connectionManager = new ServerConnectionManager(false);
         this.channelHandler = new ServerChannelHandler(connectionManager);
     }

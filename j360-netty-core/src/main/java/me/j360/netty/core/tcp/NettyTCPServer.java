@@ -8,9 +8,11 @@ import io.netty.channel.epoll.Native;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import lombok.extern.slf4j.Slf4j;
 import me.j360.netty.core.api.Listener;
 import me.j360.netty.core.api.Server;
 import me.j360.netty.core.codec.PacketDecode;
+import me.j360.netty.core.codec.PacketEncoder;
 import me.j360.netty.core.constants.ThreadNames;
 import me.j360.netty.core.exception.NettyServiceException;
 
@@ -25,6 +27,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * @date: 2017/12/26 下午7:59
  * 说明：
  */
+
+@Slf4j
 public abstract class NettyTCPServer extends BaseService implements Server {
 
     public enum State{ Created, Initialized, Starting, Started, Shutdown}
@@ -119,22 +123,36 @@ public abstract class NettyTCPServer extends BaseService implements Server {
         this.bossGroup = bossGroup;
         this.workGroup = workGroup;
 
-        ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(bossGroup, workGroup);
-        bootstrap.channelFactory(channelFactory);
+        try {
+            ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.group(bossGroup, workGroup);
+            bootstrap.channelFactory(channelFactory);
 
-        bootstrap.childHandler(new ChannelInitializer<Channel>() {
-            @Override
-            protected void initChannel(Channel ch) throws Exception {
-                initPipline(ch.pipeline());
-            }
-        });
-        initOptions(bootstrap);
+            bootstrap.childHandler(new ChannelInitializer<Channel>() {
+                @Override
+                protected void initChannel(Channel ch) throws Exception {
+                    initPipline(ch.pipeline());
+                }
+            });
+            initOptions(bootstrap);
 
-        InetSocketAddress address = new InetSocketAddress(port);
-        bootstrap.bind(address).addListeners(future -> {
-           serverState.set(State.Started);
-        });
+            InetSocketAddress address = new InetSocketAddress(port);
+            bootstrap.bind(address).addListener(future -> {
+                if (future.isSuccess()) {
+                    serverState.set(State.Started);
+                    log.info("server start success on:{}", port);
+                    if (listener != null) listener.onSuccess();
+                } else {
+                    log.error("server start failure on:{}", port, future.cause());
+                    if (listener != null) listener.onFailure(future.cause());
+                }
+            });
+        } catch (Exception e) {
+            log.error("server start exception", e);
+            if (listener != null) listener.onFailure(e);
+            throw new NettyServiceException("server start exception, port=" + port, e);
+        }
+
     }
 
     //#############################
@@ -161,7 +179,7 @@ public abstract class NettyTCPServer extends BaseService implements Server {
     }
 
     protected ChannelHandler getEncoder() {
-        return null;//PacketEncode.
+        return PacketEncoder.INSTANCE;//每连上一个链接调用一次, 所有用单利
     }
 
     protected void initPipline(ChannelPipeline pipeline) {

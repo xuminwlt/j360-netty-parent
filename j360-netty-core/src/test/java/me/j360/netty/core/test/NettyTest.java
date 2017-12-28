@@ -24,8 +24,12 @@ public class NettyTest {
 
     @Test
     public void serverStart() {
-        GatewayServer gatewayServer = new GatewayServer();
+        System.setProperty("io.netty.leakDetection.level", "PARANOID");
+        System.setProperty("io.netty.noKeySetOptimization", "false");
+        log.info("server start");
+        GatewayServer gatewayServer = new GatewayServer(8888);
         gatewayServer.init();
+
         gatewayServer.start(new Listener() {
 
             @Override
@@ -45,16 +49,26 @@ public class NettyTest {
 
     @Test
     public void clientStart() {
-
+        log.info("client start");
         GetawayClient client = new GetawayClient();
         client.start().join();
-
-
-        addConnection(client, "localhost" , 8888, false);
+        addConnection(client, "172.16.10.196" , 8888, true);
+        LockSupport.park();
     }
 
+
     private void addConnection(GetawayClient client, String host, int port, boolean sync) {
-        ChannelFuture future = client.connect(host, port);
+        ChannelFuture future = client.connect(host, port, new Listener() {
+            @Override
+            public void onSuccess(Objects... args) {
+                log.info("success");
+            }
+
+            @Override
+            public void onFailure(Throwable cause) {
+                log.error("error", cause);
+            }
+        });
         future.channel().attr(attrKey).set(getHostAndPort(host, port));
         future.addListener(f -> {
             if (!f.isSuccess()) {
@@ -62,6 +76,7 @@ public class NettyTest {
             }
         });
         if (sync) future.awaitUninterruptibly();
+
     }
 
     private static String getHostAndPort(String host, int port) {

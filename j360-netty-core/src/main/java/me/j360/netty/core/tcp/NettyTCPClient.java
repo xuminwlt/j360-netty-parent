@@ -11,6 +11,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import me.j360.netty.core.api.Client;
 import me.j360.netty.core.api.Listener;
 import me.j360.netty.core.codec.PacketDecode;
+import me.j360.netty.core.codec.PacketEncoder;
 import me.j360.netty.core.constants.ThreadNames;
 
 import java.net.InetSocketAddress;
@@ -54,7 +55,7 @@ public abstract class NettyTCPClient extends BaseService implements Client {
     public ChannelFuture connect(String host, int port, Listener listener) {
         return bootstrap.connect(new InetSocketAddress(host, port)).addListener(f -> {
             if (f.isSuccess()) {
-                //listener.onSuccess(port);
+                listener.onSuccess();
             }
         });
     }
@@ -109,7 +110,7 @@ public abstract class NettyTCPClient extends BaseService implements Client {
     }
 
     protected ChannelHandler getEncoder() {
-        return null;
+        return PacketEncoder.INSTANCE;
     }
 
     protected int getIoRate() {
@@ -121,7 +122,7 @@ public abstract class NettyTCPClient extends BaseService implements Client {
     }
 
     private boolean userNettyEpoll() {
-        if (true) {
+        if (false) {
             try {
                 Native.offsetofEpollData();
                 return true;
