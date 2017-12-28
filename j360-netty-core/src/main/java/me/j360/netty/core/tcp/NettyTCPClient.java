@@ -28,7 +28,7 @@ public abstract class NettyTCPClient extends BaseService implements Client {
 
 
     @Override
-    protected void doStart(Listener listener) {
+    protected void doStart(Listener listener) throws Throwable {
         if (userNettyEpoll()) {
             createEpollClient(listener);
         } else {
@@ -37,10 +37,15 @@ public abstract class NettyTCPClient extends BaseService implements Client {
     }
 
     @Override
-    protected void doStop(Listener listener) {
+    protected void doStop(Listener listener) throws Throwable {
 
     }
 
+    protected void initPipeline(ChannelPipeline pipeline) {
+        pipeline.addLast("decoder", getDecoder());
+        pipeline.addLast("encoder", getEncoder());
+        pipeline.addLast("handler", getChannelHandler());
+    }
 
     public ChannelFuture connect(String host, int port) {
         return bootstrap.connect(new InetSocketAddress(host, port));

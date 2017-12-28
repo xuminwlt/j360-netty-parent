@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @date: 2017/12/26 下午7:59
  * 说明：
  */
-public abstract class NettyTCPServer implements Server {
+public abstract class NettyTCPServer extends BaseService implements Server {
 
     public enum State{ Created, Initialized, Starting, Started, Shutdown}
 
@@ -53,7 +53,7 @@ public abstract class NettyTCPServer implements Server {
         }
     }
 
-
+    @Override
     public void start(final Listener listener) {
         if (!serverState.compareAndSet(State.Initialized, State.Starting)) {
             throw new NettyServiceException("服务状态异常,当前状态: " + serverState.get());
@@ -65,7 +65,7 @@ public abstract class NettyTCPServer implements Server {
             createNioServer(listener);
         }
     }
-
+    @Override
     public void stop(final Listener listener) {
 
     }
@@ -86,7 +86,9 @@ public abstract class NettyTCPServer implements Server {
             EpollEventLoopGroup epollEventLoopGroup = new EpollEventLoopGroup(1, getBossThreadFactory());
             epollEventLoopGroup.setIoRatio(100);
             bossGroup = epollEventLoopGroup;
-        } else {
+        }
+
+        if (Objects.isNull(workGroup)){
             EpollEventLoopGroup epollEventLoopGroup = new EpollEventLoopGroup(0, getWorkThreadFactory());
             epollEventLoopGroup.setIoRatio(70);
             workGroup = epollEventLoopGroup;
@@ -103,7 +105,8 @@ public abstract class NettyTCPServer implements Server {
             NioEventLoopGroup epollEventLoopGroup = new NioEventLoopGroup(1, getBossThreadFactory(), getSelectorProvider());
             epollEventLoopGroup.setIoRatio(100);
             bossGroup = epollEventLoopGroup;
-        } else {
+        }
+        if (Objects.isNull(workGroup)){
             NioEventLoopGroup epollEventLoopGroup = new NioEventLoopGroup(0, getWorkThreadFactory(), getSelectorProvider());
             epollEventLoopGroup.setIoRatio(70);
             workGroup = epollEventLoopGroup;
@@ -189,7 +192,7 @@ public abstract class NettyTCPServer implements Server {
     }
 
     protected boolean useNettyEpoll() {
-        if (true) {
+        if (false) {
             try {
                 Native.offsetofEpollData();
                 return true;

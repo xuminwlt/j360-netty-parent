@@ -12,4 +12,5 @@ public class ThreadNames {
     public static final String T_WORKER = NS + "-netty-worker";
     public static final String T_TCP_CLIENT = NS + "-netty-tcp-client";
     public static final String T_GATEWAY_WORKER = NS + "-gateway-work";
+    public static final String T_CONN_TIMER = NS + "-conn-check-timer";
 }
