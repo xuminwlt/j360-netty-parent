@@ -11,4 +11,5 @@ public class ThreadNames {
     public static final String T_BOSS = NS + "-netty-boss";
     public static final String T_WORKER = NS + "-netty-worker";
     public static final String T_TCP_CLIENT = NS + "-netty-tcp-client";
+    public static final String T_GATEWAY_WORKER = NS + "-gateway-work";
 }
