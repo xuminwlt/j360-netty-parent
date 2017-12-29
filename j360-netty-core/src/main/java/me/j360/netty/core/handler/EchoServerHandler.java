@@ -1,62 +1,54 @@
 package me.j360.netty.core.handler;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.j360.netty.core.connection.Connection;
 import me.j360.netty.core.connection.ConnectionManager;
 import me.j360.netty.core.connection.NettyConnection;
-import me.j360.netty.core.protocol.Packet;
+
+import java.nio.charset.Charset;
 
 /**
  * @author: min_xu
- * @date: 2017/12/28 下午5:19
+ * @date: 2017/12/25 下午5:41
  * 说明：
  */
 
-@Slf4j
 @ChannelHandler.Sharable
-public class ServerChannelHandler extends ChannelInboundHandlerAdapter {
+@Slf4j
+public final class EchoServerHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     private final ConnectionManager connectionManager;
 
 
-    public ServerChannelHandler(ConnectionManager connectionManager) {
+    public EchoServerHandler(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Packet packet = (Packet) msg;
-        byte cmd = packet.cmd;
-
-        try {
-            //Profiler.start("time cost on [channel read]: ", packet.toString());
-            Connection connection = connectionManager.get(ctx.channel());
-            log.debug("channelRead conn={}, packet={}", ctx.channel(), connection.getSessionContext(), msg);
-            connection.updateLastReadTime();
-            //receiver.onReceive(packet, connection);
-        } finally {
-
-        }
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-
-    }
-
-    @Override
     public void channelActive(ChannelHandlerContext ctx) {
+
         log.debug("client connected conn={}", ctx.channel());
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), false);
         connectionManager.add(connection);
+        System.out.println("server ready");
+    }
 
-        ctx.writeAndFlush(Unpooled.copiedBuffer("hello server, I am client", CharsetUtil.UTF_8));
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf byteBuf) throws Exception {
+        Connection connection = connectionManager.get(ctx.channel());
+        System.out.println(String.format("channelRead conn=%s, packet=%s", ctx.channel(), connection.getSessionContext(), byteBuf.toString(Charset.forName("UTF-8"))));
+        connection.updateLastReadTime();
+
+        System.out.println("receive -> "+byteBuf.toString(Charset.forName("UTF-8")));
+        ctx.writeAndFlush(Unpooled.copiedBuffer("hello client, I am server", CharsetUtil.UTF_8));
     }
 
     @Override
@@ -64,4 +56,5 @@ public class ServerChannelHandler extends ChannelInboundHandlerAdapter {
         Connection connection = connectionManager.removeAndClose(ctx.channel());
         log.debug("client disconnected conn={}", connection);
     }
+
 }

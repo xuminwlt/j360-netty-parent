@@ -43,8 +43,8 @@ public abstract class NettyTCPClient extends BaseService implements Client {
     }
 
     protected void initPipeline(ChannelPipeline pipeline) {
-        pipeline.addLast("decoder", getDecoder());
-        pipeline.addLast("encoder", getEncoder());
+        //pipeline.addLast("decoder", getDecoder());
+        //pipeline.addLast("encoder", getEncoder());
         pipeline.addLast("handler", getChannelHandler());
     }
 

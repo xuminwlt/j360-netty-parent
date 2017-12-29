@@ -183,8 +183,8 @@ public abstract class NettyTCPServer extends BaseService implements Server {
     }
 
     protected void initPipline(ChannelPipeline pipeline) {
-        pipeline.addLast("decoder", getDecoder());
-        pipeline.addLast("encoder", getEncoder());
+        //pipeline.addLast("decoder", getDecoder());
+        //pipeline.addLast("encoder", getEncoder());
         pipeline.addLast("handler", getChannelHandler());
     }
 

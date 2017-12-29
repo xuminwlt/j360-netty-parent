@@ -25,7 +25,7 @@ public class BootstrapApplication {
 
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(nioEventLoopGroup)
-                .remoteAddress(new InetSocketAddress("localhost",9999))
+                .remoteAddress(new InetSocketAddress("localhost",8888))
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override

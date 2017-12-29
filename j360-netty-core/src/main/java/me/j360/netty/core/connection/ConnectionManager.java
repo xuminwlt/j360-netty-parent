@@ -20,4 +20,6 @@ public interface ConnectionManager {
     void init();
 
     void destory();
+
+    Connection getFirst();
 }

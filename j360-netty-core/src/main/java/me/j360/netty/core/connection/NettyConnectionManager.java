@@ -40,10 +40,17 @@ public class NettyConnectionManager implements ConnectionManager {
 
     }
 
+
+
     @Override
     public void destory() {
         connections.values().forEach(Connection :: close);
         connections.clear();
     }
-    
+
+    @Override
+    public Connection getFirst() {
+        return connections.values().stream().findAny().get();
+    }
+
 }

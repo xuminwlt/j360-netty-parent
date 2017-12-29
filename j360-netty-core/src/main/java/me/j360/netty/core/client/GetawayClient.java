@@ -9,7 +9,7 @@ import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 import me.j360.netty.core.api.Listener;
 import me.j360.netty.core.connection.ConnectionManager;
 import me.j360.netty.core.connection.NettyConnectionManager;
-import me.j360.netty.core.handler.GatewayClientChannelHandler;
+import me.j360.netty.core.handler.EchoClientHandler;
 import me.j360.netty.core.tcp.NettyTCPClient;
 
 import java.nio.channels.spi.SelectorProvider;
@@ -22,7 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class GetawayClient extends NettyTCPClient {
 
-    private final GatewayClientChannelHandler handler;
+    private final EchoClientHandler handler;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
     private ScheduledExecutorService trafficShapingExecutor;
     private final ConnectionManager connectionManager;
@@ -32,7 +32,7 @@ public class GetawayClient extends NettyTCPClient {
         //messageDispatcher.register(Command.OK, () -> new GatewayOKHandler(mPushClient));
         //messageDispatcher.register(Command.ERROR, () -> new GatewayErrorHandler(mPushClient));
         connectionManager = new NettyConnectionManager();
-        handler = new GatewayClientChannelHandler(connectionManager);
+        handler = new EchoClientHandler(connectionManager);
 
     }
 
@@ -44,17 +44,14 @@ public class GetawayClient extends NettyTCPClient {
     @Override
     protected void initPipeline(ChannelPipeline pipeline) {
         super.initPipeline(pipeline);
-        if (trafficShapingHandler != null) {
+        /*if (trafficShapingHandler != null) {
             pipeline.addLast(trafficShapingHandler);
-        }
+        }*/
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
-        if (trafficShapingHandler != null) {
-            trafficShapingHandler.release();
-            trafficShapingExecutor.shutdown();
-        }
+
         super.doStop(listener);
     }
 

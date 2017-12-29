@@ -2,6 +2,7 @@ package me.j360.netty.server.handler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.CharsetUtil;
@@ -13,6 +14,7 @@ import java.nio.charset.Charset;
  * @date: 2017/12/25 下午5:41
  * 说明：
  */
+@ChannelHandler.Sharable
 public class EchoServerHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
 

@@ -28,7 +28,7 @@ public class BootstrapApplication {
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
-                .localAddress(new InetSocketAddress(9999))
+                .localAddress(new InetSocketAddress(8888))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
