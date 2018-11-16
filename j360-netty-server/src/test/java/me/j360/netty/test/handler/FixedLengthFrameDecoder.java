@@ -12,8 +12,23 @@ import java.util.List;
  * 说明：
  */
 public class FixedLengthFrameDecoder extends ByteToMessageDecoder {
+
+
+    private final int frameLenth;
+
+    public FixedLengthFrameDecoder(int frameLenth) {
+        if (frameLenth <= 0) {
+
+        }
+        this.frameLenth = frameLenth;
+    }
+
+
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-
+        while (in.readableBytes() >= frameLenth) {
+            ByteBuf byteBuf = in.readBytes(frameLenth);
+            out.add(byteBuf);
+        }
     }
 }

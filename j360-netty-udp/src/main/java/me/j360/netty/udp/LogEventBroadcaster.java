@@ -38,7 +38,7 @@ public class LogEventBroadcaster {
 
 
     public void run() throws InterruptedException, IOException {
-        Channel channel = bootstrap.bind(0).sync().channel();
+        Channel channel = bootstrap.bind().sync().channel();
         long pointer = 0L;
 
         for (;;) {

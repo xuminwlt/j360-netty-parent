@@ -1,17 +1,21 @@
 package me.j360.netty.core.test;
 
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.j360.netty.core.api.Listener;
+import me.j360.netty.core.client.GatewayUDPConnector;
 import me.j360.netty.core.client.GetawayClient;
 import me.j360.netty.core.connection.Connection;
 import me.j360.netty.core.server.GatewayServer;
+import me.j360.netty.core.server.GetawayUDPConnection;
 import org.junit.Test;
 
 import java.util.Objects;
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * @author: min_xu
@@ -76,6 +80,49 @@ public class NettyTest {
         }
         //LockSupport.park();
     }
+
+
+    @Test
+    public void udpConnectTest() {
+        GetawayUDPConnection udpServer = new GetawayUDPConnection(3003);
+        udpServer.init();
+        udpServer.start(new Listener() {
+            @Override
+            public void onSuccess(Objects... args) {
+
+            }
+
+            @Override
+            public void onFailure(Throwable cause) {
+
+            }
+        });
+
+        LockSupport.park();
+    }
+
+
+    @Test
+    public void udpClientTest() {
+        GatewayUDPConnector connector = new GatewayUDPConnector(3004);
+        connector.init();
+        connector.start(new Listener() {
+            @Override
+            public void onSuccess(Objects... args) {
+
+            }
+
+            @Override
+            public void onFailure(Throwable cause) {
+
+            }
+        });
+
+        Connection connection = connector.getConnection();
+        Channel channel = connection.getChannel();
+        channel.writeAndFlush(Unpooled.copiedBuffer("hello client, loop...", CharsetUtil.UTF_8));
+    }
+
 
 
     private void addConnection(GetawayClient client, String host, int port, boolean sync) {

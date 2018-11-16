@@ -8,6 +8,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.InternetProtocolFamily;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import lombok.extern.slf4j.Slf4j;
 import me.j360.netty.core.api.Listener;
 import me.j360.netty.core.api.Server;
 import me.j360.netty.core.constants.ThreadNames;
@@ -19,7 +20,7 @@ import me.j360.netty.core.tcp.BaseService;
  * @date: 2017/12/26 下午8:00
  * 说明：
  */
-
+@Slf4j
 public abstract class NettyUDPConnector extends BaseService implements Server {
 
     private final int port;
@@ -51,7 +52,13 @@ public abstract class NettyUDPConnector extends BaseService implements Server {
             initOptions(bootstrap);
 
             bootstrap.bind(port).addListener(future -> {
-
+                if (future.isSuccess()) {
+                    log.info("udp server start success on:{}", port);
+                    if (listener != null) listener.onSuccess();
+                } else {
+                    log.error("udp server start failure on:{}", port, future.cause());
+                    if (listener != null) listener.onFailure(future.cause());
+                }
             });
         } catch (Exception e) {
             //("udp server start exception", e);

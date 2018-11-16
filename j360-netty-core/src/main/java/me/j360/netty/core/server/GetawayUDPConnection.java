@@ -26,7 +26,7 @@ public final class GetawayUDPConnection extends NettyUDPConnector {
     @Override
     public void init() {
         super.init();
-        channelHandler.setMulticastAddress(Utils.getInetAddress("localhost"));
+        channelHandler.setMulticastAddress(Utils.getInetAddress("239.239.239.88"));
         channelHandler.setNetworkInterface(Utils.getLocalNetworkInterface());
     }
 
