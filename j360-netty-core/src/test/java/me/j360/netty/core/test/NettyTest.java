@@ -1,7 +1,6 @@
 package me.j360.netty.core.test;
 
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
@@ -10,10 +9,12 @@ import me.j360.netty.core.api.Listener;
 import me.j360.netty.core.client.GatewayUDPConnector;
 import me.j360.netty.core.client.GetawayClient;
 import me.j360.netty.core.connection.Connection;
+import me.j360.netty.core.protocol.Packet;
 import me.j360.netty.core.server.GatewayServer;
 import me.j360.netty.core.server.GetawayUDPConnection;
 import org.junit.Test;
 
+import java.net.InetSocketAddress;
 import java.util.Objects;
 import java.util.concurrent.locks.LockSupport;
 
@@ -118,9 +119,17 @@ public class NettyTest {
             }
         });
 
+        //
         Connection connection = connector.getConnection();
-        Channel channel = connection.getChannel();
-        channel.writeAndFlush(Unpooled.copiedBuffer("hello client, loop...", CharsetUtil.UTF_8));
+        Packet packet = new Packet();
+        packet.setRecipient(new InetSocketAddress("127.0.0.1", 3003));
+        connection.send(packet, f -> {
+            if (f.isSuccess()) {
+                System.out.println("send broadcast to gateway server success, userId={}, conn={}");
+            } else {
+                System.out.println("send broadcast to gateway server failure, userId={}, conn={}");
+            }
+        });
     }
 
 
