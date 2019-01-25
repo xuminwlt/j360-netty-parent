@@ -29,6 +29,8 @@ public class AgentServerHandler extends SimpleChannelInboundHandler<ByteBuf> {
     }
 
     private Map<ChannelId, Channel> channelMap = new ConcurrentHashMap<>();
+
+    //channel should be pooled then use get conn, return conn
     private Channel channel;
 
     @Override
