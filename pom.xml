@@ -15,6 +15,7 @@
         <module>j360-netty-udp</module>
         <module>j360-netty-core</module>
         <module>j360-netty-nio</module>
+        <module>j360-netty-dubbo</module>
     </modules>
     
     <properties>

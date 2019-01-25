@@ -6,6 +6,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import me.j360.netty.client.handler.EchoClientHandler;
 
 import java.net.InetSocketAddress;
@@ -25,20 +26,24 @@ public class BootstrapApplication {
 
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(nioEventLoopGroup)
-                .remoteAddress(new InetSocketAddress("localhost",8888))
+                .remoteAddress(new InetSocketAddress("localhost",8000))
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        socketChannel.pipeline().addLast(new IdleStateHandler(10, 10, 30));
                         socketChannel.pipeline().addLast(echoClientHandler);
                     }
                 });
 
-        ChannelFuture channelFuture = null;
         try {
-            channelFuture = bootstrap.connect().sync();
-            channelFuture.channel().closeFuture().sync();
 
+            for (int i = 0; i < 1; i++) {
+                ChannelFuture channelFuture = bootstrap.connect().sync();
+                channelFuture.channel().closeFuture().addListener(future -> {
+
+                });
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
             nioEventLoopGroup.shutdownGracefully();
